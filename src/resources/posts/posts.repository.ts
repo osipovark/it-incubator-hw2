@@ -45,8 +45,8 @@ export const getPostsRepository = {
       abortEarly: false,
       stripUnknown: true,
     });
-    const isBlogExistent =
-      db.blogs.findIndex((b) => b.id === input.blogId) !== -1;
+    const blogIndex = db.blogs.findIndex((b) => b.id === input.blogId);
+    const isBlogExistent = blogIndex !== -1;
     let responseCode;
     let responseObject;
     if (error || !isBlogExistent) {
@@ -76,6 +76,7 @@ export const getPostsRepository = {
           db.posts.length > 0
             ? `${Math.max(...db.posts.map((p) => +p.id)) + 1}`
             : "0",
+        blogName: db.blogs[blogIndex].name,
         ...value,
       };
       db.posts.push(responseObject);
@@ -103,8 +104,8 @@ export const getPostsRepository = {
       abortEarly: false,
       stripUnknown: true,
     });
-    const isBlogExistent =
-      db.blogs.findIndex((b) => b.id === input.blogId) !== -1;
+    const blogIndex = db.blogs.findIndex((b) => b.id === input.blogId);
+    const isBlogExistent = blogIndex !== -1;
     let responseCode;
     let responseObject;
     if (error || !isBlogExistent) {
@@ -129,7 +130,11 @@ export const getPostsRepository = {
       };
       return [responseCode, responseObject];
     } else {
-      db.posts.splice(postIndex, 1, { id, ...value });
+      db.posts.splice(postIndex, 1, {
+        id,
+        blogName: db.blogs[blogIndex].name,
+        ...value,
+      });
       return HTTP_CODES.NO_CONTENT_204;
     }
   },

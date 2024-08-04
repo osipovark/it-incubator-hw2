@@ -8,19 +8,20 @@ import { BlogViewModel } from "./models/BlogViewModel";
 import { APIErrorResult } from "../../utils/apiErrors";
 
 const blogSchema = Joi.object({
-  name: Joi.string().max(15).required().messages({
+  name: Joi.string().trim().max(15).required().messages({
     "any.required": "name is required",
     "string.base": "name must be a string",
     "string.max": "name can't be longer than 15 characters",
     "string.empty": "empty string can't be used as a name",
   }),
-  description: Joi.string().max(500).required().messages({
+  description: Joi.string().trim().max(500).required().messages({
     "any.required": "description is required",
     "string.base": "description must be a string",
     "string.max": "description can't be longer than 500 characters",
     "string.empty": "empty string can't be used as a description",
   }),
   websiteUrl: Joi.string()
+    .trim()
     .max(100)
     .pattern(
       new RegExp(
@@ -33,7 +34,7 @@ const blogSchema = Joi.object({
       "string.base": "websiteUrl must be a string",
       "string.max": "websiteUrl can't be longer than 100 characters",
       "string.empty": "empty string can't be used as a websiteUrl",
-      "string.pattern.base": "impossible url",
+      "string.pattern.base": "incorrect url",
     }),
 });
 
@@ -45,7 +46,10 @@ export const getBlogsRepository = {
   createBlog(
     input: BlogInputModel
   ): [HttpStatusType, BlogViewModel | APIErrorResult] {
-    const { error, value } = blogSchema.validate(input, { abortEarly: false });
+    const { error, value } = blogSchema.validate(input, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
     let responseCode;
     let responseObject;
     if (error) {
@@ -82,6 +86,7 @@ export const getBlogsRepository = {
       abortEarly: false,
       stripUnknown: true,
     });
+    console.log(error);
     if (error) {
       return [HTTP_CODES.BAD_REQUEST_400, transformJoiError(error)];
     } else {

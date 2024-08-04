@@ -8,25 +8,25 @@ import { PostViewModel } from "./models/PostViewModel";
 import { APIErrorResult } from "../../utils/apiErrors";
 
 const postSchema = Joi.object({
-  title: Joi.string().max(30).required().messages({
+  title: Joi.string().trim().max(30).required().messages({
     "any.required": "title is required",
     "string.base": "title must be a string",
     "string.max": "title can't be longer than 30 characters",
     "string.empty": "empty string can't be used as a title",
   }),
-  shortDescription: Joi.string().max(100).required().messages({
+  shortDescription: Joi.string().trim().max(100).required().messages({
     "any.required": "shortDescription is required",
     "string.base": "shortDescription must be a string",
     "string.max": "shortDescription can't be longer than 100 characters",
     "string.empty": "empty string can't be used as a shortDescription",
   }),
-  content: Joi.string().max(1000).required().messages({
+  content: Joi.string().trim().max(1000).required().messages({
     "any.required": "content is required",
     "string.base": "content must be a string",
     "string.max": "content can't be longer than 1000 characters",
     "string.empty": "empty string can't be used as a content",
   }),
-  blogId: Joi.string().required().messages({
+  blogId: Joi.string().trim().required().messages({
     "any.required": "blogId is required",
     "string.base": "blogId must be a string",
     "string.empty": "empty string can't be used as a blogId",
@@ -41,7 +41,10 @@ export const getPostsRepository = {
   createPost(
     input: PostInputModel
   ): [HttpStatusType, PostViewModel | APIErrorResult] {
-    const { error, value } = postSchema.validate(input, { abortEarly: false });
+    const { error, value } = postSchema.validate(input, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
     const isBlogExistent =
       db.blogs.findIndex((b) => b.id === input.blogId) !== -1;
     let responseCode;
@@ -96,7 +99,10 @@ export const getPostsRepository = {
     if (postIndex === -1) {
       return HTTP_CODES.NOT_FOUND_404;
     }
-    const { error, value } = postSchema.validate(input, { abortEarly: false });
+    const { error, value } = postSchema.validate(input, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
     const isBlogExistent =
       db.blogs.findIndex((b) => b.id === input.blogId) !== -1;
     let responseCode;

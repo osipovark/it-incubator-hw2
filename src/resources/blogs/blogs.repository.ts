@@ -78,7 +78,10 @@ export const getBlogsRepository = {
     if (blogIndex === -1) {
       return HTTP_CODES.NOT_FOUND_404;
     }
-    const { error, value } = blogSchema.validate(input, { abortEarly: false });
+    const { error, value } = blogSchema.validate(input, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
     if (error) {
       return [HTTP_CODES.BAD_REQUEST_400, transformJoiError(error)];
     } else {

@@ -8,12 +8,17 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.get("authorization");
-  const [username, password] = authHeader
-    ? Buffer.from(authHeader.split(" ")[1], "base64").toString().split(":")
-    : ["", ""];
-  if (username === "admin" && password === "qwerty") {
-    next();
+  const authHeader: string | undefined = req.get("authorization");
+  if (authHeader) {
+    const [kind, token] = authHeader.split(" ");
+    const [username, password] = Buffer.from(token, "base64")
+      .toString()
+      .split(":");
+    if (kind === "Bearer" && username === "admin" && password === "qwerty") {
+      next();
+    } else {
+      res.sendStatus(401);
+    }
   } else {
     res.sendStatus(401);
   }
